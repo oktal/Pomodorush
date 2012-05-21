@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/todo-list-icon.png</file>
+        <file>icons/report-list-icon.png</file>
+        <file>icons/activity-list-icon.png</file>
+        <file>icons/settings-icon.png</file>
+        <file>icons/home-icon.png</file>
+        <file>icons/activity-list-go.png</file>
+        <file>icons/add-activity-icon.png</file>
+        <file>icons/remove-activity-icon.png</file>
+        <file>icons/activity-list-edit.png</file>
+        <file>icons/void-timer-icon.png</file>
+        <file>icons/add-icon.png</file>
+        <file>icons/remove-icon.png</file>
+        <file>icons/note-add-icon.png</file>
+        <file>icons/note-edit-icon.png</file>
+        <file>icons/note-remove-icon.png</file>
+        <file>icons/timer-plus-icon.png</file>
+        <file>icons/timer-start.png</file>
+        <file>icons/check-icon.png</file>
+        <file>icons/interruption-icon.png</file>
+        <file>icons/pomodoro-image.png</file>
+    </qresource>
+</RCC>
