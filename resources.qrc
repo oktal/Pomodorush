@@ -20,5 +20,9 @@
         <file>icons/check-icon.png</file>
         <file>icons/interruption-icon.png</file>
         <file>icons/pomodoro-image.png</file>
+        <file alias="delegate-icon">icons/sphere-icon.png</file>
+    </qresource>
+    <qresource prefix="/sql">
+        <file alias="script001.sql">db/pomodorush.sql</file>
     </qresource>
 </RCC>

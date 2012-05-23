@@ -18,7 +18,7 @@
     <item row="0" column="1">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="homePage">
        <layout class="QVBoxLayout" name="verticalLayout_6" stretch="40,50,0,10">
@@ -226,7 +226,21 @@ p, li { white-space: pre-wrap; }
          </spacer>
         </item>
         <item>
-         <widget class="QTableView" name="tblActivity"/>
+         <widget class="QCheckBox" name="chkUrgentdActivities">
+          <property name="text">
+           <string>Only display Urgent activities</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableView" name="tblActivity">
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
