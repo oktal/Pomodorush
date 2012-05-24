@@ -78,12 +78,7 @@ void MainWindow::on_btnEditActivity_clicked()
     const QModelIndex &index = ui->tblActivity->currentIndex();
     if (index.isValid()) {
         const QModelIndex &mappedIndex = mActivitiesFilterModel->mapToSource(index);
-        const Activity &activity = mActivitiesModel->activity(mappedIndex);
-        ActivityDialog d(activity);
-        if (d.exec() == QDialog::Accepted) {
-            const Activity &a = d.activity();
-            mActivitiesModel->setActivity(mappedIndex, a);
-        }
+        editActivity(mappedIndex);
     }
 }
 
@@ -100,4 +95,20 @@ void MainWindow::on_btnRemoveActivity_clicked()
 void MainWindow::on_chkUrgentdActivities_clicked(bool checked)
 {
     mActivitiesFilterModel->setDisplayUrgent(!checked);
+}
+
+void MainWindow::on_tblActivity_doubleClicked(const QModelIndex &index)
+{
+    const QModelIndex mappedIndex = mActivitiesFilterModel->mapToSource(index);
+    editActivity(mappedIndex);
+}
+
+void MainWindow::editActivity(const QModelIndex &index)
+{
+    const Activity &activity = mActivitiesModel->activity(index);
+    ActivityDialog d(activity);
+    if (d.exec() == QDialog::Accepted) {
+        const Activity &a = d.activity();
+        mActivitiesModel->setActivity(index, a);
+    }
 }

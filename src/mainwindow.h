@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QModelIndex>
 
 namespace Ui {
 class MainWindow;
@@ -27,7 +28,11 @@ private slots:
 
     void on_chkUrgentdActivities_clicked(bool checked);
 
+    void on_tblActivity_doubleClicked(const QModelIndex &index);
+
 private:
+    void editActivity(const QModelIndex &index);
+
     Ui::MainWindow *ui;
     ActivitiesModel *mActivitiesModel;
     ActivitiesFilterModel *mActivitiesFilterModel;
