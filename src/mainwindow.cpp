@@ -10,6 +10,7 @@
 
 #include "sql/models/todomodel.h"
 #include "sql/todo.h"
+#include "tododelegate.h"
 
 #include <QActionGroup>
 #include <QSignalMapper>
@@ -62,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tblActivity->setHorizontalHeader(activityHeader);
 
     ui->tblTodo->setModel(mTodoModel);
+    ui->tblTodo->setItemDelegate(new TodoDelegate(this));
 
     pHeaderView * todoHeader = new pHeaderView(Qt::Horizontal, this);
     todoHeader->setProportionalSectionSizes(true);

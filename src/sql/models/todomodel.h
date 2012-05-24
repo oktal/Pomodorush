@@ -42,6 +42,7 @@ public slots:
 
 private:
     Estimation estimation(const QModelIndex &index) const;
+    QString interruption(const QModelIndex &index) const;
 
     QDate mDate;
     QScopedPointer<TodoManager> mManager;

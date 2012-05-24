@@ -30,6 +30,7 @@ public:
             if (ok) {
                 SqlHelper::rollback();
             }
+            return false;
         }
 
         if (ok) {
@@ -58,6 +59,7 @@ public:
                 todo.pomodoro_done = query.value(6).toInt();
                 todo.urgent = query.value(7).toBool();
                 todo.reestimation = selectReestimations(todo.id);
+                todo.interruptions = selectInterruptions(todo.id);
                 todos << todo;
             }
         }
@@ -170,6 +172,30 @@ private:
         return true;
     }
 
+    QList<Todo::Interruption> selectInterruptions(int todoId) {
+        SQL_QUERY(query);
+        query.prepare("SELECT interruption_type, reason FROM interruption "
+                      "WHERE todo_id=:todoId");
+        query.bindValue(":todoId", todoId);
+
+        QList<Todo::Interruption> interruptions;
+        if (query.exec()) {
+            while (query.next()) {
+                Todo::Interruption interruption;
+                interruption.type = static_cast<Todo::Interruption::Type>(
+                            query.value(0).toInt());
+                interruption.reason = query.value(1).toString();
+
+                interruptions << interruption;
+            }
+        }
+        else {
+            REPORT_SQL_ERROR(query);
+        }
+
+        return interruptions;
+    }
+
 };
 
 TodoModel::TodoModel(const QDate &date, QObject *parent) :
@@ -241,6 +267,7 @@ QVariant TodoModel::data(const QModelIndex &index, int role) const
         case Description:
             return todo.description;
         case Interruption:
+            return interruption(index);
             break;
         case Pomodoro:
             return QVariant::fromValue(estimation(index));
@@ -340,4 +367,28 @@ Estimation TodoModel::estimation(const QModelIndex &index) const
     e.reestimation = todo.reestimation;
 
     return e;
+}
+
+QString TodoModel::interruption(const QModelIndex &index) const
+{
+    if (index.row() < 0 || index.row() >= mTodo.count()) {
+        Q_ASSERT_X(false, Q_FUNC_INFO, "Bad Index");
+    }
+
+    const Todo &todo = mTodo.at(index.row());
+    /* a 'x' symbolizes an internal interruption, where-as the '-' symbolizes
+      an external interruption
+    */
+    QString ret;
+    const QList<Todo::Interruption> &interruptions = todo.interruptions;
+    foreach (const Todo::Interruption &i, interruptions) {
+        if (i.type == Todo::Interruption::Internal) {
+            ret += 'x';
+        }
+        else {
+            ret += '-';
+        }
+    }
+
+    return ret;
 }

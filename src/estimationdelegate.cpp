@@ -11,7 +11,6 @@ EstimationDelegate::EstimationDelegate(int yOffset, QObject *parent) :
 
 void EstimationDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    Q_UNUSED(option);
     const int count = index.data(Qt::DisplayRole).toInt();
 
     painter->save();

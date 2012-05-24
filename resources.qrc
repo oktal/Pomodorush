@@ -21,6 +21,12 @@
         <file>icons/interruption-icon.png</file>
         <file>icons/pomodoro-image.png</file>
         <file alias="delegate-icon">icons/sphere-icon.png</file>
+        <file alias="square-blue-icon">icons/square-blue-icon.png</file>
+        <file alias="circle-blue-icon">icons/circle-blue-icon.png</file>
+        <file alias="circle-green-icon">icons/circle-green-icon.png</file>
+        <file alias="square-green-icon">icons/square-green-icon.png</file>
+        <file alias="cross-icon">icons/cross-icon.png</file>
+        <file alias="minus-icon">icons/minus-icon.png</file>
     </qresource>
     <qresource prefix="/sql">
         <file alias="script001.sql">db/pomodorush.sql</file>

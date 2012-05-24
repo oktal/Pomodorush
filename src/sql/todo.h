@@ -7,6 +7,13 @@
 
 struct Todo
 {
+    struct Interruption {
+        enum Type { Internal, External };
+
+        Type type;
+        QString reason;
+    };
+
     Todo();
     qint64 id;
     QDate date;
@@ -17,6 +24,9 @@ struct Todo
     int pomodoro_done;
     bool done;
     bool urgent;
+
+    QList<Interruption> interruptions;
+
 };
 
 #endif // TODO_H
