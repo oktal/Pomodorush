@@ -2,7 +2,7 @@
 -- Author:        octal
 -- Caption:       New Model
 -- Project:       Name of the project
--- Changed:       2012-05-23 15:54
+-- Changed:       2012-05-24 14:50
 -- Created:       2012-05-22 16:11
 PRAGMA foreign_keys = OFF;
 
@@ -21,6 +21,7 @@ CREATE TABLE "todo"(
   "date" DATE,
   "type" TEXT,
   "description" INTEGER,
+  "estimation" INTEGER,
   "done" INTEGER,
   "pomodoro_done" INTEGER,
   "urgent" INTEGER

@@ -11,6 +11,8 @@ class MainWindow;
 class ActivitiesModel;
 class ActivitiesFilterModel;
 
+class TodoModel;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -30,12 +32,15 @@ private slots:
 
     void on_tblActivity_doubleClicked(const QModelIndex &index);
 
+    void on_btnPlanActivity_clicked();
+
 private:
     void editActivity(const QModelIndex &index);
 
     Ui::MainWindow *ui;
     ActivitiesModel *mActivitiesModel;
     ActivitiesFilterModel *mActivitiesFilterModel;
+    TodoModel *mTodoModel;
 };
 
 #endif // MAINWINDOW_H

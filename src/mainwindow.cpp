@@ -8,6 +8,9 @@
 #include "activitydialog.h"
 #include "estimationdelegate.h"
 
+#include "sql/models/todomodel.h"
+#include "sql/todo.h"
+
 #include <QActionGroup>
 #include <QSignalMapper>
 #include <QSqlTableModel>
@@ -17,7 +20,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     mActivitiesModel(new ActivitiesModel(this)),
-    mActivitiesFilterModel(new ActivitiesFilterModel(this))
+    mActivitiesFilterModel(new ActivitiesFilterModel(this)),
+    mTodoModel(new TodoModel(QDate::currentDate(), this))
 {
     ui->setupUi(this);
 
@@ -56,6 +60,17 @@ MainWindow::MainWindow(QWidget *parent) :
     activityHeader->setSectionStretchFactor(ActivitiesModel::Estimation, 20);
 
     ui->tblActivity->setHorizontalHeader(activityHeader);
+
+    ui->tblTodo->setModel(mTodoModel);
+
+    pHeaderView * todoHeader = new pHeaderView(Qt::Horizontal, this);
+    todoHeader->setProportionalSectionSizes(true);
+    todoHeader->setSectionStretchFactor(TodoModel::Urgent, 5);
+    todoHeader->setSectionStretchFactor(TodoModel::Type, 15);
+    todoHeader->setSectionStretchFactor(TodoModel::Description, 40);
+    todoHeader->setSectionStretchFactor(TodoModel::Interruption, 15);
+    todoHeader->setSectionStretchFactor(TodoModel::Pomodoro, 25);
+    ui->tblTodo->setHorizontalHeader(todoHeader);
 
 }
 
@@ -111,4 +126,25 @@ void MainWindow::editActivity(const QModelIndex &index)
         const Activity &a = d.activity();
         mActivitiesModel->setActivity(index, a);
     }
+}
+
+void MainWindow::on_btnPlanActivity_clicked()
+{
+    const QModelIndex &index = ui->tblActivity->currentIndex();
+    if (index.isValid()) {
+        const QModelIndex &mappedIndex = mActivitiesFilterModel->mapToSource(index);
+        Q_ASSERT(mappedIndex.isValid());
+
+        const Activity &a = mActivitiesModel->activity(mappedIndex);
+        Todo todo;
+        todo.date = QDate::currentDate();
+        todo.type = a.type;
+        todo.description = a.description;
+        todo.estimation = a.estimation;
+        todo.pomodoro_done = 0;
+        todo.urgent = a.urgent;
+        todo.done = false;
+        mTodoModel->addTodo(todo);
+    }
+
 }

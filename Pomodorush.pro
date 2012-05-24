@@ -18,13 +18,15 @@ SOURCES += src/main.cpp\
     src/activitydialog.cpp \
     src/timerdialog.cpp \
     src/widgets/pHeaderView.cpp \
-    src/estimationdelegate.cpp
+    src/estimationdelegate.cpp \
+    src/tododelegate.cpp
 
 HEADERS  += src/mainwindow.h \
     src/activitydialog.h \
     src/timerdialog.h \
     src/widgets/pHeaderView.h \
-    src/estimationdelegate.h
+    src/estimationdelegate.h \
+    src/tododelegate.h
 
 FORMS    += src/mainwindow.ui \
     src/activitydialog.ui \
