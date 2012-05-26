@@ -84,7 +84,7 @@ void TodoDelegate::drawPomodoros(QPainter *painter, const QStyleOptionViewItem &
 
         if (reestimation.size() > 1) {
             for (int i = 0; i < reestimation[1]; ++i) {
-                painter->drawPixmap(xOffset, yOffset, QPixmap(":/circle-blue-icon").scaled(16, 16, Qt::KeepAspectRatio));
+                painter->drawPixmap(xOffset, yOffset, QPixmap(":/triangle-blue-icon"));
                 painter->translate(16.0, 0.0);
             }
         }

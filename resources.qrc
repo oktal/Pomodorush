@@ -27,6 +27,8 @@
         <file alias="square-green-icon">icons/square-green-icon.png</file>
         <file alias="cross-icon">icons/cross-icon.png</file>
         <file alias="minus-icon">icons/minus-icon.png</file>
+        <file alias="triangle-blue-icon">icons/triangle-blue-icon.png</file>
+        <file alias="triangle-green-icon">icons/triangle-green-icon.png</file>
     </qresource>
     <qresource prefix="/sql">
         <file alias="script001.sql">db/pomodorush.sql</file>

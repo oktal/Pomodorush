@@ -11,11 +11,15 @@
 #include "sql/models/todomodel.h"
 #include "sql/todo.h"
 #include "tododelegate.h"
+#include "tododialog.h"
 
 #include <QActionGroup>
 #include <QSignalMapper>
 #include <QSqlTableModel>
 #include <QDebug>
+#include <QDate>
+
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -73,6 +77,8 @@ MainWindow::MainWindow(QWidget *parent) :
     todoHeader->setSectionStretchFactor(TodoModel::Interruption, 15);
     todoHeader->setSectionStretchFactor(TodoModel::Pomodoro, 25);
     ui->tblTodo->setHorizontalHeader(todoHeader);
+
+    ui->lblCurrentDate->setText(QDate::currentDate().toString(Qt::SystemLocaleLongDate));
 
 }
 
@@ -149,4 +155,60 @@ void MainWindow::on_btnPlanActivity_clicked()
         mTodoModel->addTodo(todo);
     }
 
+}
+
+void MainWindow::on_tblActivity_clicked(const QModelIndex &index)
+{
+    ui->btnEditActivity->setEnabled(index.isValid());
+    ui->btnRemoveActivity->setEnabled(index.isValid());
+    ui->btnPlanActivity->setEnabled(index.isValid());
+}
+
+void MainWindow::on_btnAddTodo_clicked()
+{
+    TodoDialog d;
+    if (d.exec() == QDialog::Accepted) {
+        Todo todo = d.todo();
+        mTodoModel->addTodo(todo);
+    }
+}
+
+void MainWindow::on_tblTodo_clicked(const QModelIndex &index)
+{
+    ui->btnEditTodo->setEnabled(index.isValid());
+    ui->btnRemoveTodo->setEnabled(index.isValid());
+    ui->btnTaskDone->setEnabled(index.isValid());
+    ui->btnStartPomodoro->setEnabled(index.isValid());
+    ui->btnReestimate->setEnabled(index.isValid());
+}
+
+void MainWindow::on_btnEditTodo_clicked()
+{
+    const QModelIndex &index = ui->tblTodo->currentIndex();
+    if (index.isValid()) {
+        const Todo &todo = mTodoModel->todo(index);
+        TodoDialog d(todo);
+        if (d.exec() == QDialog::Accepted) {
+            const Todo &todo = d.todo();
+            mTodoModel->setTodo(index, todo);
+        }
+    }
+}
+
+void MainWindow::on_btnRemoveTodo_clicked()
+{
+    const QModelIndex &index = ui->tblTodo->currentIndex();
+    if (index.isValid()) {
+        const Todo &todo = mTodoModel->todo(index);
+        if (todo.pomodoro_done > 0) {
+            const QMessageBox::StandardButton ret = QMessageBox::warning(this, tr("Warning"),
+                                 tr("You are still working on this task. Do you really want to remove it ?"),
+                                  QMessageBox::Yes | QMessageBox::No);
+            if (ret == QMessageBox::No) {
+                return;
+            }
+        }
+
+        mTodoModel->removeRow(index.row());
+    }
 }

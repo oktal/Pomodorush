@@ -34,6 +34,16 @@ private slots:
 
     void on_btnPlanActivity_clicked();
 
+    void on_tblActivity_clicked(const QModelIndex &index);
+
+    void on_btnAddTodo_clicked();
+
+    void on_tblTodo_clicked(const QModelIndex &index);
+
+    void on_btnEditTodo_clicked();
+
+    void on_btnRemoveTodo_clicked();
+
 private:
     void editActivity(const QModelIndex &index);
 

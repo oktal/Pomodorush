@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ActivityDialog</class>
- <widget class="QDialog" name="ActivityDialog">
+ <class>TodoDialog</class>
+ <widget class="QDialog" name="TodoDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>510</width>
-    <height>257</height>
+    <width>489</width>
+    <height>285</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Pomodorush - Activity</string>
+   <string>Pomodorush - Todo</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../resources.qrc">
-    <normaloff>:/icons/activity-list-icon.png</normaloff>:/icons/activity-list-icon.png</iconset>
+    <normaloff>:/icons/todo-list-icon.png</normaloff>:/icons/todo-list-icon.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -31,8 +31,8 @@
       </widget>
      </item>
      <item row="0" column="1" colspan="2">
-      <widget class="QDateEdit" name="cmbDate">
-       <property name="calendarPopup">
+      <widget class="QLineEdit" name="txtDate">
+       <property name="readOnly">
         <bool>true</bool>
        </property>
       </widget>
@@ -67,20 +67,30 @@
      <item row="3" column="1">
       <widget class="QComboBox" name="cmbEstimation"/>
      </item>
-     <item row="4" column="0">
-      <widget class="QCheckBox" name="chkUrgent">
-       <property name="text">
-        <string>Urgent</string>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="2">
       <widget class="QLabel" name="lblWarning">
        <property name="styleSheet">
         <string notr="true">color: rgb(255, 0, 0);</string>
        </property>
        <property name="text">
-        <string>You should break down your activity !</string>
+        <string>You should break down your todo !</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1" colspan="2">
+      <widget class="QLabel" name="lblWarnReestimate">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(255, 0, 0);</string>
+       </property>
+       <property name="text">
+        <string>You can not change the initial estimation, please reestimate instead !</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QCheckBox" name="chkUrgent">
+       <property name="text">
+        <string>Urgent</string>
        </property>
       </widget>
      </item>
@@ -105,7 +115,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>ActivityDialog</receiver>
+   <receiver>TodoDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -121,7 +131,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>ActivityDialog</receiver>
+   <receiver>TodoDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

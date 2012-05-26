@@ -319,7 +319,7 @@ const Todo &TodoModel::todo(const QModelIndex &index) const
 
 bool TodoModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    if (row < 0 || row + count >= mTodo.count()) {
+    if (row < 0 || row + count > mTodo.count()) {
         return false;
     }
 

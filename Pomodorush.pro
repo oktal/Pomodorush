@@ -19,18 +19,21 @@ SOURCES += src/main.cpp\
     src/timerdialog.cpp \
     src/widgets/pHeaderView.cpp \
     src/estimationdelegate.cpp \
-    src/tododelegate.cpp
+    src/tododelegate.cpp \
+    src/tododialog.cpp
 
 HEADERS  += src/mainwindow.h \
     src/activitydialog.h \
     src/timerdialog.h \
     src/widgets/pHeaderView.h \
     src/estimationdelegate.h \
-    src/tododelegate.h
+    src/tododelegate.h \
+    src/tododialog.h
 
 FORMS    += src/mainwindow.ui \
     src/activitydialog.ui \
-    src/timerdialog.ui
+    src/timerdialog.ui \
+    src/tododialog.ui
 
 RESOURCES += \
     resources.qrc
