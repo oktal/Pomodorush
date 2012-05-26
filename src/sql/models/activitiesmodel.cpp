@@ -232,7 +232,7 @@ const Activity &ActivitiesModel::activity(const QModelIndex &index) const
 
 bool ActivitiesModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    if (row < 0 || row + count >= mActivities.count()) {
+    if (row < 0 || row + count > mActivities.count()) {
         return false;
     }
 
