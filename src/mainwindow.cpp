@@ -9,7 +9,7 @@
 #include "estimationdelegate.h"
 
 #include "sql/models/todomodel.h"
-#include "sql/todo.h"
+#include "sql/entities/todo.h"
 #include "tododelegate.h"
 #include "tododialog.h"
 

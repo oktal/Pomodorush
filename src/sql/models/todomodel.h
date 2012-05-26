@@ -5,6 +5,8 @@
 #include <QDate>
 #include <QScopedPointer>
 
+#include "sql/entities/todo.h"
+
 class TodoManager;
 class Todo;
 

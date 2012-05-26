@@ -1,5 +1,4 @@
 #include "todomodel.h"
-#include "sql/todo.h"
 #include "sql/SqlHelper.h"
 
 #include <QDebug>

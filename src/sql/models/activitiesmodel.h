@@ -3,7 +3,7 @@
 
 #include <QAbstractTableModel>
 #include <QList>
-#include "sql/activity.h"
+#include "sql/entities/activity.h"
 
 class ActivityManager;
 

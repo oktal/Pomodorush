@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-#include "sql/todo.h"
+#include "sql/entities/todo.h"
 
 namespace Ui {
 class TodoDialog;

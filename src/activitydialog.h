@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-#include "sql/activity.h"
+#include "sql/entities/activity.h"
 
 namespace Ui {
 class ActivityDialog;
