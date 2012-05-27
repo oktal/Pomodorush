@@ -177,11 +177,12 @@ void MainWindow::on_btnAddTodo_clicked()
 
 void MainWindow::on_tblTodo_clicked(const QModelIndex &index)
 {
+    const bool done = mTodoModel->isDone(index);
     ui->btnEditTodo->setEnabled(index.isValid());
     ui->btnRemoveTodo->setEnabled(index.isValid());
-    ui->btnTaskDone->setEnabled(index.isValid());
-    ui->btnStartPomodoro->setEnabled(index.isValid());
-    ui->btnReestimate->setEnabled(mTodoModel->canReestimate(index));
+    ui->btnTaskDone->setEnabled(!done);
+    ui->btnStartPomodoro->setEnabled(!done);
+    ui->btnReestimate->setEnabled(!done && mTodoModel->canReestimate(index));
 }
 
 void MainWindow::on_btnEditTodo_clicked()
@@ -255,5 +256,16 @@ void MainWindow::on_btnReestimate_clicked()
             mTodoModel->reestimate(index, reestimation);
             ui->btnReestimate->setEnabled(mTodoModel->canReestimate(index));
         }
+    }
+}
+
+void MainWindow::on_btnTaskDone_clicked()
+{
+    const QModelIndex &index = ui->tblTodo->currentIndex();
+    if (index.isValid()) {
+        mTodoModel->taskDone(index);
+        ui->btnTaskDone->setDisabled(true);
+        ui->btnStartPomodoro->setDisabled(true);
+        ui->btnReestimate->setDisabled(true);
     }
 }

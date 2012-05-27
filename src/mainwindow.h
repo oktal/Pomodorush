@@ -52,6 +52,8 @@ private slots:
 
     void on_btnReestimate_clicked();
 
+    void on_btnTaskDone_clicked();
+
 private:
     void editActivity(const QModelIndex &index);
 

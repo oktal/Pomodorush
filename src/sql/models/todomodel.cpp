@@ -3,6 +3,9 @@
 
 #include <QDebug>
 #include <QSqlError>
+#include <QFont>
+#include <QApplication>
+#include <QColor>
 
 static const int MaxReestimation = 2;
 
@@ -281,6 +284,19 @@ QVariant TodoModel::data(const QModelIndex &index, int role) const
     else if (role == Qt::EditRole && index.column() == Pomodoro) {
         return todo.pomodoro_done;
     }
+    else if (role == Qt::FontRole && (index.column() == Type ||
+             index.column() == Description)) {
+        QFont font(qApp->font());
+        if (todo.done) {
+            font.setStrikeOut(true);
+        }
+        return font;
+    }
+    else if (role == Qt::BackgroundRole) {
+        if (todo.done) {
+            return QColor(255, 0, 0, 70);
+        }
+    }
 
     return QVariant();
 }
@@ -377,6 +393,28 @@ void TodoModel::reestimate(const QModelIndex &index, int reestimation)
     todo.reestimation << reestimation;
     const QModelIndex &pomdoroIndex = QAbstractTableModel::index(index.row(), Pomodoro);
     emit dataChanged(pomdoroIndex, pomdoroIndex);
+}
+
+void TodoModel::taskDone(const QModelIndex &index)
+{
+    if (index.row() < 0 || index.row() >= mTodo.count()) {
+        Q_ASSERT_X(false, Q_FUNC_INFO, "Bad Index");
+    }
+
+    Todo &todo = mTodo[index.row()];
+    todo.done = true;
+    const QModelIndex &topLeft = QAbstractTableModel::index(index.row(), Type);
+    const QModelIndex &bottomRight = QAbstractTableModel::index(index.row(), Description);
+    emit dataChanged(topLeft, bottomRight);
+}
+
+bool TodoModel::isDone(const QModelIndex &index) const
+{
+    if (index.row() < 0 || index.row() >= mTodo.count()) {
+        Q_ASSERT_X(false, Q_FUNC_INFO, "Bad Index");
+    }
+
+    return mTodo.at(index.row()).done;
 }
 
 bool TodoModel::removeRows(int row, int count, const QModelIndex &parent)

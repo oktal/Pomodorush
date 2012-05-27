@@ -42,6 +42,8 @@ public:
     void addInterruption(const QModelIndex &index, const Todo::Interruption &interruption);
     bool canReestimate(const QModelIndex &index) const;
     void reestimate(const QModelIndex &index, int reestimation);
+    void taskDone(const QModelIndex &index);
+    bool isDone(const QModelIndex &index) const;
 
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 

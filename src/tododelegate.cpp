@@ -33,6 +33,12 @@ void TodoDelegate::drawInterruptions(QPainter *painter, const QStyleOptionViewIt
     if (option.state & QStyle::State_Selected) {
         painter->fillRect(option.rect, option.palette.highlight());
     }
+    else {
+        const QVariant &backgroundColorData = index.data(Qt::BackgroundRole);
+        if (backgroundColorData.isValid()) {
+            painter->fillRect(option.rect, backgroundColorData.value<QColor>());
+        }
+    }
 
     const int yOffset = option.rect.y() + 8;
     const int xOffset = option.rect.x() + 5;
@@ -66,6 +72,12 @@ void TodoDelegate::drawPomodoros(QPainter *painter, const QStyleOptionViewItem &
 
     if (option.state & QStyle::State_Selected) {
         painter->fillRect(option.rect, option.palette.highlight());
+    }
+    else {
+        const QVariant &backgroundColorData = index.data(Qt::BackgroundRole);
+        if (backgroundColorData.isValid()) {
+            painter->fillRect(option.rect, backgroundColorData.value<QColor>());
+        }
     }
 
     const int yOffset = option.rect.y() + 5;
