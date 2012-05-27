@@ -24,7 +24,11 @@ TodoDialog::TodoDialog(QWidget *parent) :
     }
 
     ui->cmbEstimation->setItemDelegate(new EstimationDelegate(0, this));
-
+    mTodo.id = -1;
+    mTodo.estimation = 1;
+    mTodo.pomodoro_done = 0;
+    mTodo.done = false;
+    mTodo.date = QDate::currentDate();
 
     for (int i = 1; i <= MaxPomodoro; ++i) {
         ui->cmbEstimation->addItem(QString::number(i));
