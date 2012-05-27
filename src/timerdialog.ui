@@ -19,7 +19,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="10,60,30">
    <item>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="lblTask">
      <property name="font">
       <font>
        <weight>75</weight>
@@ -27,12 +27,12 @@
       </font>
      </property>
      <property name="text">
-      <string>Activity Name</string>
+      <string>Task Name</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="lblTime">
      <property name="font">
       <font>
        <family>Agency FB</family>
@@ -61,7 +61,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="btnAddActivity">
+      <widget class="QPushButton" name="btnInterruption">
        <property name="minimumSize">
         <size>
          <width>120</width>
@@ -84,7 +84,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnAddActivity_2">
+      <widget class="QPushButton" name="btnVoid">
        <property name="minimumSize">
         <size>
          <width>120</width>

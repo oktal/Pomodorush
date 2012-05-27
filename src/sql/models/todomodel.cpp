@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <QSqlError>
 
+static const int MaxReestimation = 2;
+
 class TodoManager {
 public:
     TodoManager() { }
@@ -276,6 +278,9 @@ QVariant TodoModel::data(const QModelIndex &index, int role) const
     else if (role == Qt::CheckStateRole && index.column() == Urgent) {
         return todo.urgent ? Qt::Checked : Qt::Unchecked;
     }
+    else if (role == Qt::EditRole && index.column() == Pomodoro) {
+        return todo.pomodoro_done;
+    }
 
     return QVariant();
 }
@@ -314,6 +319,64 @@ const Todo &TodoModel::todo(const QModelIndex &index) const
     }
 
     return mTodo.at(index.row());
+}
+
+QModelIndex TodoModel::todoIndex(qint64 id) const
+{
+    int row;
+    for (row = 0; row < mTodo.count(); ++row) {
+        if (mTodo.at(row).id == id) {
+            return QAbstractTableModel::index(row, 0);
+        }
+    }
+
+    return QModelIndex();
+}
+
+void TodoModel::pomodoroFinished(const QModelIndex &index)
+{
+    if (index.row() < 0 || index.row() >= mTodo.count()) {
+        Q_ASSERT_X(false, Q_FUNC_INFO, "Bad Index");
+    }
+
+    Todo &todo = mTodo[index.row()];
+    todo.pomodoro_done++;
+    const QModelIndex &pomodoroIndex = QAbstractTableModel::index(index.row(), Pomodoro);
+    emit dataChanged(pomodoroIndex, pomodoroIndex);
+}
+
+void TodoModel::addInterruption(const QModelIndex &index, const Todo::Interruption &interruption)
+{
+    if (index.row() < 0 || index.row() >= mTodo.count()) {
+        Q_ASSERT_X(false, Q_FUNC_INFO, "Bad Index");
+    }
+
+    Todo &todo = mTodo[index.row()];
+    todo.interruptions << interruption;
+    const QModelIndex &interruptionIndex = QAbstractTableModel::index(index.row(), Interruption);
+    emit dataChanged(interruptionIndex, interruptionIndex);
+}
+
+bool TodoModel::canReestimate(const QModelIndex &index) const
+{
+    if (index.row() < 0 || index.row() >= mTodo.count()) {
+        Q_ASSERT_X(false, Q_FUNC_INFO, "Bad Index");
+    }
+
+    const Todo &todo = mTodo.at(index.row());
+    return todo.reestimation.size() < MaxReestimation;
+}
+
+void TodoModel::reestimate(const QModelIndex &index, int reestimation)
+{
+    if (index.row() < 0 || index.row() >= mTodo.count()) {
+        Q_ASSERT_X(false, Q_FUNC_INFO, "Bad Index");
+    }
+
+    Todo &todo = mTodo[index.row()];
+    todo.reestimation << reestimation;
+    const QModelIndex &pomdoroIndex = QAbstractTableModel::index(index.row(), Pomodoro);
+    emit dataChanged(pomdoroIndex, pomdoroIndex);
 }
 
 bool TodoModel::removeRows(int row, int count, const QModelIndex &parent)

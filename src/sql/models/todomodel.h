@@ -36,6 +36,13 @@ public:
     bool setTodo(const QModelIndex &index, const Todo &todo);
     const Todo &todo(const QModelIndex &index) const;
 
+    QModelIndex todoIndex(qint64 id) const;
+
+    void pomodoroFinished(const QModelIndex &index);
+    void addInterruption(const QModelIndex &index, const Todo::Interruption &interruption);
+    bool canReestimate(const QModelIndex &index) const;
+    void reestimate(const QModelIndex &index, int reestimation);
+
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
 public slots:

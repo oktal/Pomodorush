@@ -7,11 +7,13 @@
 #include "widgets/pHeaderView.h"
 #include "activitydialog.h"
 #include "estimationdelegate.h"
+#include "timerdialog.h"
 
 #include "sql/models/todomodel.h"
 #include "sql/entities/todo.h"
 #include "tododelegate.h"
 #include "tododialog.h"
+#include "reestimationdialog.h"
 
 #include <QActionGroup>
 #include <QSignalMapper>
@@ -179,7 +181,7 @@ void MainWindow::on_tblTodo_clicked(const QModelIndex &index)
     ui->btnRemoveTodo->setEnabled(index.isValid());
     ui->btnTaskDone->setEnabled(index.isValid());
     ui->btnStartPomodoro->setEnabled(index.isValid());
-    ui->btnReestimate->setEnabled(index.isValid());
+    ui->btnReestimate->setEnabled(mTodoModel->canReestimate(index));
 }
 
 void MainWindow::on_btnEditTodo_clicked()
@@ -210,5 +212,48 @@ void MainWindow::on_btnRemoveTodo_clicked()
         }
 
         mTodoModel->removeRow(index.row());
+    }
+}
+
+void MainWindow::on_btnStartPomodoro_clicked()
+{
+    const QModelIndex &index = ui->tblTodo->currentIndex();
+    if (index.isValid()) {
+        const Todo &todo = mTodoModel->todo(index);
+        TimerDialog *dialog = new TimerDialog(todo, this);
+        dialog->show();
+        dialog->startTimer();
+        connect(dialog, SIGNAL(timerFinished(Todo)), this, SLOT(onTimerFinished(Todo)));
+        connect(dialog, SIGNAL(interrupted(Todo,Todo::Interruption)), this,
+                SLOT(onInterrupted(Todo,Todo::Interruption)));
+    }
+}
+
+void MainWindow::onTimerFinished(const Todo &todo)
+{
+    const QModelIndex &index = mTodoModel->todoIndex(todo.id);
+    if (index.isValid()) {
+        mTodoModel->pomodoroFinished(index);
+    }
+}
+
+void MainWindow::onInterrupted(const Todo &todo, const Todo::Interruption &interruption)
+{
+    const QModelIndex &index = mTodoModel->todoIndex(todo.id);
+    if (index.isValid()) {
+        mTodoModel->addInterruption(index, interruption);
+    }
+}
+
+void MainWindow::on_btnReestimate_clicked()
+{
+    const QModelIndex &index = ui->tblTodo->currentIndex();
+    if (index.isValid()) {
+        ReestimationDialog dialog;
+        if (dialog.exec() == QDialog::Accepted) {
+            const int reestimation = dialog.reestimation();
+            mTodoModel->reestimate(index, reestimation);
+            ui->btnReestimate->setEnabled(mTodoModel->canReestimate(index));
+        }
     }
 }

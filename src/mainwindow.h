@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QModelIndex>
+#include "sql/entities/todo.h"
 
 namespace Ui {
 class MainWindow;
@@ -43,6 +44,13 @@ private slots:
     void on_btnEditTodo_clicked();
 
     void on_btnRemoveTodo_clicked();
+
+    void on_btnStartPomodoro_clicked();
+
+    void onTimerFinished(const Todo &todo);
+    void onInterrupted(const Todo &todo, const Todo::Interruption &interruption);
+
+    void on_btnReestimate_clicked();
 
 private:
     void editActivity(const QModelIndex &index);

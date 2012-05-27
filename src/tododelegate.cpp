@@ -62,6 +62,7 @@ void TodoDelegate::drawPomodoros(QPainter *painter, const QStyleOptionViewItem &
 
     const QVariant &data = index.data();
     const Estimation &e = qvariant_cast<Estimation>(data);
+    const int pomodoroCount = index.data(Qt::EditRole).toInt();
 
     if (option.state & QStyle::State_Selected) {
         painter->fillRect(option.rect, option.palette.highlight());
@@ -71,20 +72,37 @@ void TodoDelegate::drawPomodoros(QPainter *painter, const QStyleOptionViewItem &
     const int xOffset = option.rect.x() + 5;
 
     for (int i = 0; i < e.base; ++i) {
-        painter->drawPixmap(xOffset, yOffset, QPixmap(":/square-blue-icon"));
+        if (i < pomodoroCount) {
+            painter->drawPixmap(xOffset, yOffset, QPixmap(":/square-green-icon"));
+        }
+        else {
+            painter->drawPixmap(xOffset, yOffset, QPixmap(":/square-blue-icon"));
+        }
         painter->translate(16.0, 0.0);
     }
 
     const QList<int> &reestimation = e.reestimation;
     if (reestimation.size() > 0) {
-        for (int i = 0; i < reestimation[0]; ++i) {
-            painter->drawPixmap(xOffset, yOffset, QPixmap(":/circle-blue-icon"));
+        const int r0 = reestimation[0];
+        for (int i = 0; i < r0; ++i) {
+            if (i + e.base < pomodoroCount) {
+                painter->drawPixmap(xOffset, yOffset, QPixmap(":/circle-green-icon"));
+            }
+            else {
+                painter->drawPixmap(xOffset, yOffset, QPixmap(":/circle-blue-icon"));
+            }
             painter->translate(16.0, 0.0);
         }
 
         if (reestimation.size() > 1) {
-            for (int i = 0; i < reestimation[1]; ++i) {
-                painter->drawPixmap(xOffset, yOffset, QPixmap(":/triangle-blue-icon"));
+            const int r1 = reestimation[1];
+            for (int i = 0; i < r1; ++i) {
+                if (i + e.base + r0 < pomodoroCount) {
+                    painter->drawPixmap(xOffset, yOffset, QPixmap(":/triangle-green-icon"));
+                }
+                else {
+                    painter->drawPixmap(xOffset, yOffset, QPixmap(":/triangle-blue-icon"));
+                }
                 painter->translate(16.0, 0.0);
             }
         }
