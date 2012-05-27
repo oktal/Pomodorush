@@ -13,6 +13,7 @@ class ActivitiesModel;
 class ActivitiesFilterModel;
 
 class TodoModel;
+class TodoFilterModel;
 
 class MainWindow : public QMainWindow
 {
@@ -54,6 +55,8 @@ private slots:
 
     void on_btnTaskDone_clicked();
 
+    void on_btnHideDone_clicked(bool checked);
+
 private:
     void editActivity(const QModelIndex &index);
 
@@ -61,6 +64,7 @@ private:
     ActivitiesModel *mActivitiesModel;
     ActivitiesFilterModel *mActivitiesFilterModel;
     TodoModel *mTodoModel;
+    TodoFilterModel *mTodoFilterModel;
 };
 
 #endif // MAINWINDOW_H

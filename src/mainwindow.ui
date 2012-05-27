@@ -379,6 +379,13 @@ p, li { white-space: pre-wrap; }
          </spacer>
         </item>
         <item>
+         <widget class="QCheckBox" name="btnHideDone">
+          <property name="text">
+           <string>Hide completed activities</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QTableView" name="tblTodo">
           <property name="selectionMode">
            <enum>QAbstractItemView::SingleSelection</enum>

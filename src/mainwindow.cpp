@@ -10,6 +10,7 @@
 #include "timerdialog.h"
 
 #include "sql/models/todomodel.h"
+#include "sql/models/todofiltermodel.h"
 #include "sql/entities/todo.h"
 #include "tododelegate.h"
 #include "tododialog.h"
@@ -28,7 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     mActivitiesModel(new ActivitiesModel(this)),
     mActivitiesFilterModel(new ActivitiesFilterModel(this)),
-    mTodoModel(new TodoModel(QDate::currentDate(), this))
+    mTodoModel(new TodoModel(QDate::currentDate(), this)),
+    mTodoFilterModel(new TodoFilterModel(this))
 {
     ui->setupUi(this);
 
@@ -68,7 +70,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->tblActivity->setHorizontalHeader(activityHeader);
 
-    ui->tblTodo->setModel(mTodoModel);
+    mTodoFilterModel->setSourceModel(mTodoModel);
+    ui->tblTodo->setModel(mTodoFilterModel);
     ui->tblTodo->setItemDelegate(new TodoDelegate(this));
 
     pHeaderView * todoHeader = new pHeaderView(Qt::Horizontal, this);
@@ -177,23 +180,25 @@ void MainWindow::on_btnAddTodo_clicked()
 
 void MainWindow::on_tblTodo_clicked(const QModelIndex &index)
 {
-    const bool done = mTodoModel->isDone(index);
+    const QModelIndex &mappedIndex = mTodoFilterModel->mapToSource(index);
+    const bool done = mTodoModel->isDone(mappedIndex);
     ui->btnEditTodo->setEnabled(index.isValid());
     ui->btnRemoveTodo->setEnabled(index.isValid());
     ui->btnTaskDone->setEnabled(!done);
     ui->btnStartPomodoro->setEnabled(!done);
-    ui->btnReestimate->setEnabled(!done && mTodoModel->canReestimate(index));
+    ui->btnReestimate->setEnabled(!done && mTodoModel->canReestimate(mappedIndex));
 }
 
 void MainWindow::on_btnEditTodo_clicked()
 {
     const QModelIndex &index = ui->tblTodo->currentIndex();
     if (index.isValid()) {
-        const Todo &todo = mTodoModel->todo(index);
+        const QModelIndex &mappedIndex = mTodoFilterModel->mapToSource(index);
+        const Todo &todo = mTodoModel->todo(mappedIndex);
         TodoDialog d(todo);
         if (d.exec() == QDialog::Accepted) {
             const Todo &todo = d.todo();
-            mTodoModel->setTodo(index, todo);
+            mTodoModel->setTodo(mappedIndex, todo);
         }
     }
 }
@@ -202,7 +207,8 @@ void MainWindow::on_btnRemoveTodo_clicked()
 {
     const QModelIndex &index = ui->tblTodo->currentIndex();
     if (index.isValid()) {
-        const Todo &todo = mTodoModel->todo(index);
+        const QModelIndex &mappedIndex = mTodoFilterModel->mapToSource(index);
+        const Todo &todo = mTodoModel->todo(mappedIndex);
         if (todo.pomodoro_done > 0) {
             const QMessageBox::StandardButton ret = QMessageBox::warning(this, tr("Warning"),
                                  tr("You are still working on this task. Do you really want to remove it ?"),
@@ -212,7 +218,7 @@ void MainWindow::on_btnRemoveTodo_clicked()
             }
         }
 
-        mTodoModel->removeRow(index.row());
+        mTodoModel->removeRow(mappedIndex.row());
     }
 }
 
@@ -220,7 +226,8 @@ void MainWindow::on_btnStartPomodoro_clicked()
 {
     const QModelIndex &index = ui->tblTodo->currentIndex();
     if (index.isValid()) {
-        const Todo &todo = mTodoModel->todo(index);
+        const QModelIndex &mappedIndex = mTodoFilterModel->mapToSource(index);
+        const Todo &todo = mTodoModel->todo(mappedIndex);
         TimerDialog *dialog = new TimerDialog(todo, this);
         dialog->show();
         dialog->startTimer();
@@ -253,8 +260,9 @@ void MainWindow::on_btnReestimate_clicked()
         ReestimationDialog dialog;
         if (dialog.exec() == QDialog::Accepted) {
             const int reestimation = dialog.reestimation();
-            mTodoModel->reestimate(index, reestimation);
-            ui->btnReestimate->setEnabled(mTodoModel->canReestimate(index));
+            const QModelIndex &mappedIndex = mTodoFilterModel->mapToSource(index);
+            mTodoModel->reestimate(mappedIndex, reestimation);
+            ui->btnReestimate->setEnabled(mTodoModel->canReestimate(mappedIndex));
         }
     }
 }
@@ -263,9 +271,15 @@ void MainWindow::on_btnTaskDone_clicked()
 {
     const QModelIndex &index = ui->tblTodo->currentIndex();
     if (index.isValid()) {
-        mTodoModel->taskDone(index);
+        const QModelIndex &mappedIndex = mTodoFilterModel->mapToSource(index);
+        mTodoModel->taskDone(mappedIndex);
         ui->btnTaskDone->setDisabled(true);
         ui->btnStartPomodoro->setDisabled(true);
         ui->btnReestimate->setDisabled(true);
     }
+}
+
+void MainWindow::on_btnHideDone_clicked(bool checked)
+{
+    mTodoFilterModel->setDisplayDone(!checked);
 }

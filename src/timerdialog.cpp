@@ -69,3 +69,12 @@ void TimerDialog::on_btnInterruption_clicked()
         emit interrupted(mTodo, interruption);
     }
 }
+
+void TimerDialog::on_btnNextPomodoro_clicked()
+{
+    startTimer();
+    ui->btnInterruption->setEnabled(true);
+    ui->btnVoid->setEnabled(true);
+    ui->btnNextPomodoro->setDisabled(true);
+    mPeriod = Work;
+}

@@ -34,6 +34,8 @@ private slots:
     
     void on_btnInterruption_clicked();
 
+    void on_btnNextPomodoro_clicked();
+
 private:
     Ui::TimerDialog *ui;
     Todo mTodo;

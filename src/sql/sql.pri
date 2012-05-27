@@ -6,6 +6,7 @@ HEADERS	*= src/sql/SqlHelper.h \
     src/sql/models/activitiesmodel.h \
     src/sql/models/activitiesfiltermodel.h \
     src/sql/models/todomodel.h \
+    src/sql/models/todofiltermodel.h
 
 SOURCES	*= src/sql/SqlHelper.cpp \
         src/sql/parser/sqlkeywords.cpp \
@@ -14,5 +15,6 @@ SOURCES	*= src/sql/SqlHelper.cpp \
     src/sql/entities/todo.cpp \
     src/sql/models/activitiesmodel.cpp \
     src/sql/models/activitiesfiltermodel.cpp \
-    src/sql/models/todomodel.cpp
+    src/sql/models/todomodel.cpp \
+    src/sql/models/todofiltermodel.cpp
 
