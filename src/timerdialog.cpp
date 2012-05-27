@@ -13,17 +13,22 @@ TimerDialog::TimerDialog(const Todo &todo, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::TimerDialog),
     mTodo(todo),
-    mTimer(new QTimer(this))
+    mTimer(new QTimer(this)),
+    mPeriod(Work)
 {
     ui->setupUi(this);
     connect(mTimer, SIGNAL(timeout()), this, SLOT(onTimerTimeout()));
     ui->lblTask->setText(todo.description);
-    alarmFile.setFileName("sounds/alarm_clock.wav");
 }
 
 TimerDialog::~TimerDialog()
 {
     delete ui;
+}
+
+TimerDialog::Period TimerDialog::period() const
+{
+    return mPeriod;
 }
 
 void TimerDialog::startTimer()
@@ -38,7 +43,21 @@ void TimerDialog::onTimerTimeout()
     ui->lblTime->setText(mTime.toString("mm:ss"));
     if (mTime.second() == 0 && mTime.minute() == 0) {
         mTimer->stop();
-        emit timerFinished(mTodo);
+        if (mPeriod == Work) {
+            emit timerFinished(mTodo);
+            mTimer->start(1000);
+            mTime.setHMS(0, 1, 0);
+            ui->lblPeriod->setText(tr("Now take a rest !"));
+            ui->btnInterruption->setDisabled(true);
+            ui->btnVoid->setDisabled(true);
+            ui->btnNextPomodoro->setDisabled(true);
+            mPeriod = Rest;
+        }
+        else {
+            ui->btnNextPomodoro->setEnabled(true);
+            ui->lblPeriod->setText(tr("Time to work !"));
+            ui->lblTime->setText("25:00");
+        }
     }
 }
 

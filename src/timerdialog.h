@@ -17,8 +17,10 @@ class TimerDialog : public QDialog
     Q_OBJECT
     
 public:
+    enum Period { Work, Rest };
     explicit TimerDialog(const Todo &todo, QWidget *parent = 0);
     ~TimerDialog();
+    Period period() const;
 
 signals:
     void timerFinished(const Todo &todo);
@@ -37,7 +39,7 @@ private:
     Todo mTodo;
     QTimer *mTimer;
     QTime mTime;
-    QFile alarmFile;
+    Period mPeriod;
 };
 
 #endif // TIMERDIALOG_H
