@@ -5,9 +5,11 @@
 #include <QTimer>
 #include <QDebug>
 
-#include <QAudioOutput>
-#include <QAudioFormat>
+#include <Phonon/MediaObject>
+#include <Phonon/AudioOutput>
 #include <QFile>
+
+static const QLatin1String &tickingSound = QLatin1String("sounds/clock_ticking_cut.wav");
 
 TimerDialog::TimerDialog(const Todo &todo, QWidget *parent) :
     QDialog(parent),
@@ -19,6 +21,12 @@ TimerDialog::TimerDialog(const Todo &todo, QWidget *parent) :
     ui->setupUi(this);
     connect(mTimer, SIGNAL(timeout()), this, SLOT(onTimerTimeout()));
     ui->lblTask->setText(todo.description);
+
+    Phonon::AudioOutput *audioOutput = new Phonon::AudioOutput(Phonon::NotificationCategory);
+    mediaObject = new Phonon::MediaObject(this);
+    Phonon::createPath(mediaObject, audioOutput);
+    mediaObject->setTransitionTime(-40);
+    connect(mediaObject, SIGNAL(aboutToFinish()), this, SLOT(onSoundFinished()));
 }
 
 TimerDialog::~TimerDialog()
@@ -35,6 +43,8 @@ void TimerDialog::startTimer()
 {
     mTimer->start(1000);
     mTime.setHMS(0, 0, 10);
+    mediaObject->setCurrentSource(Phonon::MediaSource(tickingSound));
+    mediaObject->play();
 }
 
 void TimerDialog::onTimerTimeout()
@@ -45,6 +55,9 @@ void TimerDialog::onTimerTimeout()
         mTimer->stop();
         if (mPeriod == Work) {
             emit timerFinished(mTodo);
+            mediaObject->setCurrentSource(Phonon::MediaSource("sounds/alarm_clock.wav"));
+            mediaObject->play();
+            mediaObject->clearQueue();
             mTimer->start(1000);
             mTime.setHMS(0, 1, 0);
             ui->lblPeriod->setText(tr("Now take a rest !"));
@@ -77,4 +90,11 @@ void TimerDialog::on_btnNextPomodoro_clicked()
     ui->btnVoid->setEnabled(true);
     ui->btnNextPomodoro->setDisabled(true);
     mPeriod = Work;
+}
+
+void TimerDialog::onSoundFinished()
+{
+    if (mPeriod == Work) {
+        mediaObject->enqueue(Phonon::MediaSource(tickingSound));
+    }
 }

@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QTime>
 #include <QFile>
+#include <Phonon/MediaObject>
 #include "sql/entities/todo.h"
 
 namespace Ui {
@@ -36,12 +37,15 @@ private slots:
 
     void on_btnNextPomodoro_clicked();
 
+    void onSoundFinished();
+
 private:
     Ui::TimerDialog *ui;
     Todo mTodo;
     QTimer *mTimer;
     QTime mTime;
     Period mPeriod;
+    Phonon::MediaObject *mediaObject;
 };
 
 #endif // TIMERDIALOG_H

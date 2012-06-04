@@ -15,6 +15,7 @@
 #include "tododelegate.h"
 #include "tododialog.h"
 #include "reestimationdialog.h"
+#include "settings.h"
 
 #include <QActionGroup>
 #include <QSignalMapper>
@@ -23,6 +24,8 @@
 #include <QDate>
 
 #include <QMessageBox>
+#include <QApplication>
+#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -45,10 +48,12 @@ MainWindow::MainWindow(QWidget *parent) :
     pagesMapper->setMapping(ui->homeAction, ui->homePage);
     pagesMapper->setMapping(ui->activityListAction, ui->activityPage);
     pagesMapper->setMapping(ui->todoListAction, ui->todoPage);
+    pagesMapper->setMapping(ui->settingsAction, ui->settingsPage);
 
     connect(ui->homeAction, SIGNAL(triggered()), pagesMapper, SLOT(map()));
     connect(ui->activityListAction, SIGNAL(triggered()), pagesMapper, SLOT(map()));
     connect(ui->todoListAction, SIGNAL(triggered()), pagesMapper, SLOT(map()));
+    connect(ui->settingsAction, SIGNAL(triggered()), pagesMapper, SLOT(map()));
 
     connect(pagesMapper, SIGNAL(mapped(QWidget*)), ui->stackedWidget, SLOT(setCurrentWidget(QWidget*)));
 
@@ -84,7 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tblTodo->setHorizontalHeader(todoHeader);
 
     ui->lblCurrentDate->setText(QDate::currentDate().toString(Qt::SystemLocaleLongDate));
-
+    readSettings();
 }
 
 MainWindow::~MainWindow()
@@ -139,6 +144,35 @@ void MainWindow::editActivity(const QModelIndex &index)
         const Activity &a = d.activity();
         mActivitiesModel->setActivity(index, a);
     }
+}
+
+void MainWindow::readSettings()
+{
+    QSettings settings(qApp->organizationName(), qApp->applicationName());
+    ui->spinPomodoroLength->setValue(settings.value(SETTING_POMODOROLENGTH).toInt());
+    ui->spinShortBreak->setValue(settings.value(SETTING_SHORTBREAK).toInt());
+    ui->spinLongBreak->setValue(settings.value(SETTING_LONGBREAK).toInt());
+    ui->spinPomodoroLongBreak->setValue(settings.value(SETTING_POMODOROSLONGBREAK).toInt());
+    ui->chkTimerTicking->setChecked(settings.value(SETTING_TIMERTICKING).toBool());
+    ui->chkTimerBeep->setChecked(settings.value(SETTING_TIMERBEEP).toBool());
+}
+
+void MainWindow::writeSettings()
+{
+    const int pomodoroLength = ui->spinPomodoroLength->value();
+    const int shortBreak = ui->spinShortBreak->value();
+    const int longBreak = ui->spinLongBreak->value();
+    const int pomodoroLongBreak = ui->spinPomodoroLongBreak->value();
+    const bool timerTicking = ui->chkTimerTicking->isChecked();
+    const bool timerBeep = ui->chkTimerBeep->isChecked();
+
+    QSettings settings(qApp->organizationName(), qApp->applicationName());
+    settings.setValue(SETTING_POMODOROLENGTH, pomodoroLength);
+    settings.setValue(SETTING_SHORTBREAK, shortBreak);
+    settings.setValue(SETTING_LONGBREAK, longBreak);
+    settings.setValue(SETTING_POMODOROSLONGBREAK, pomodoroLongBreak);
+    settings.setValue(SETTING_TIMERTICKING, timerTicking);
+    settings.setValue(SETTING_TIMERBEEP, timerBeep);
 }
 
 void MainWindow::on_btnPlanActivity_clicked()
@@ -282,4 +316,47 @@ void MainWindow::on_btnTaskDone_clicked()
 void MainWindow::on_btnHideDone_clicked(bool checked)
 {
     mTodoFilterModel->setDisplayDone(!checked);
+}
+
+void MainWindow::on_btnSaveSettings_clicked()
+{
+    writeSettings();
+    ui->btnSaveSettings->setEnabled(false);
+}
+
+
+void MainWindow::on_chkTimerTicking_clicked()
+{
+    ui->btnSaveSettings->setEnabled(true);
+}
+
+void MainWindow::on_chkTimerBeep_clicked()
+{
+    ui->btnSaveSettings->setEnabled(true);
+}
+
+void MainWindow::on_cmbLang_activated(int index)
+{
+    Q_UNUSED(index);
+    ui->btnSaveSettings->setEnabled(true);
+}
+
+void MainWindow::on_spinPomodoroLength_editingFinished()
+{
+    ui->btnSaveSettings->setEnabled(true);
+}
+
+void MainWindow::on_spinShortBreak_editingFinished()
+{
+    ui->btnSaveSettings->setEnabled(true);
+}
+
+void MainWindow::on_spinLongBreak_editingFinished()
+{
+    ui->btnSaveSettings->setEnabled(true);
+}
+
+void MainWindow::on_spinPomodoroLongBreak_editingFinished()
+{
+    ui->btnSaveSettings->setEnabled(true);
 }

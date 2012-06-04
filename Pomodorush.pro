@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql multimedia
+QT       += core gui sql phonon
 
 TARGET = Pomodorush
 TEMPLATE = app
@@ -32,7 +32,8 @@ HEADERS  += src/mainwindow.h \
     src/tododelegate.h \
     src/tododialog.h \
     src/interruptiondialog.h \
-    src/reestimationdialog.h
+    src/reestimationdialog.h \
+    src/settings.h
 
 FORMS    += src/mainwindow.ui \
     src/activitydialog.ui \

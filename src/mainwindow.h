@@ -57,8 +57,26 @@ private slots:
 
     void on_btnHideDone_clicked(bool checked);
 
+    void on_btnSaveSettings_clicked();
+
+    void on_chkTimerTicking_clicked();
+
+    void on_chkTimerBeep_clicked();
+
+    void on_cmbLang_activated(int index);
+
+    void on_spinPomodoroLength_editingFinished();
+
+    void on_spinShortBreak_editingFinished();
+
+    void on_spinLongBreak_editingFinished();
+
+    void on_spinPomodoroLongBreak_editingFinished();
+
 private:
     void editActivity(const QModelIndex &index);
+    void readSettings();
+    void writeSettings();
 
     Ui::MainWindow *ui;
     ActivitiesModel *mActivitiesModel;
