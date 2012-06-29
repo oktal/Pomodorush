@@ -2,8 +2,12 @@
 #include "ui_timerdialog.h"
 #include "interruptiondialog.h"
 
+#include "settings.h"
+
+#include <QSettings>
 #include <QTimer>
 #include <QDebug>
+#include <QApplication>
 
 #include <Phonon/MediaObject>
 #include <Phonon/AudioOutput>
@@ -16,7 +20,8 @@ TimerDialog::TimerDialog(const Todo &todo, QWidget *parent) :
     ui(new Ui::TimerDialog),
     mTodo(todo),
     mTimer(new QTimer(this)),
-    mPeriod(Work)
+    mPeriod(Work),
+    mBreakCount(0)
 {
     ui->setupUi(this);
     connect(mTimer, SIGNAL(timeout()), this, SLOT(onTimerTimeout()));
@@ -25,8 +30,13 @@ TimerDialog::TimerDialog(const Todo &todo, QWidget *parent) :
     Phonon::AudioOutput *audioOutput = new Phonon::AudioOutput(Phonon::NotificationCategory);
     mediaObject = new Phonon::MediaObject(this);
     Phonon::createPath(mediaObject, audioOutput);
-    mediaObject->setTransitionTime(-40);
+    //mediaObject->setTransitionTime(-40);
     connect(mediaObject, SIGNAL(aboutToFinish()), this, SLOT(onSoundFinished()));
+
+    QSettings settings(qApp->organizationName(), qApp->applicationName());
+    const int pomodoroLength = settings.value(SETTING_POMODOROLENGTH).toInt();
+
+    ui->lblTime->setText(QTime(0, pomodoroLength, 0).toString("mm:ss"));
 }
 
 TimerDialog::~TimerDialog()
@@ -41,8 +51,10 @@ TimerDialog::Period TimerDialog::period() const
 
 void TimerDialog::startTimer()
 {
+    QSettings settings(qApp->organizationName(), qApp->applicationName());
+    const int pomodoroLength = settings.value(SETTING_POMODOROLENGTH).toInt();
     mTimer->start(1000);
-    mTime.setHMS(0, 0, 10);
+    mTime.setHMS(0, pomodoroLength, 0);
     mediaObject->setCurrentSource(Phonon::MediaSource(tickingSound));
     mediaObject->play();
 }
@@ -51,15 +63,25 @@ void TimerDialog::onTimerTimeout()
 {
     mTime = mTime.addSecs(-1);
     ui->lblTime->setText(mTime.toString("mm:ss"));
+    QSettings settings(qApp->organizationName(), qApp->applicationName());
     if (mTime.second() == 0 && mTime.minute() == 0) {
         mTimer->stop();
         if (mPeriod == Work) {
             emit timerFinished(mTodo);
+            ++mBreakCount;
             mediaObject->setCurrentSource(Phonon::MediaSource("sounds/alarm_clock.wav"));
             mediaObject->play();
             mediaObject->clearQueue();
             mTimer->start(1000);
-            mTime.setHMS(0, 1, 0);
+
+            const int pomodoroLongBreak = settings.value(SETTING_POMODOROSLONGBREAK).toInt();
+            int breakTime = 0;
+            if (mBreakCount % pomodoroLongBreak == 0) {
+                breakTime = settings.value(SETTING_LONGBREAK).toInt();
+            } else {
+                breakTime = settings.value(SETTING_SHORTBREAK).toInt();
+            }
+            mTime.setHMS(0, breakTime, 0);
             ui->lblPeriod->setText(tr("Now take a rest !"));
             ui->btnInterruption->setDisabled(true);
             ui->btnVoid->setDisabled(true);
@@ -69,7 +91,8 @@ void TimerDialog::onTimerTimeout()
         else {
             ui->btnNextPomodoro->setEnabled(true);
             ui->lblPeriod->setText(tr("Time to work !"));
-            ui->lblTime->setText("25:00");
+            const int pomodoroLength = settings.value(SETTING_POMODOROLENGTH).toInt();
+            ui->lblTime->setText(QTime(0, pomodoroLength, 0).toString("mm:ss"));
         }
     }
 }

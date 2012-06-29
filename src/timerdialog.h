@@ -46,6 +46,7 @@ private:
     QTime mTime;
     Period mPeriod;
     Phonon::MediaObject *mediaObject;
+    int mBreakCount;
 };
 
 #endif // TIMERDIALOG_H
