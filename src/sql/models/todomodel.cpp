@@ -42,6 +42,7 @@ public:
         }
 
         if (ok) {
+            todo.id = query.lastInsertId().toInt();
             SqlHelper::commit();
         }
 
