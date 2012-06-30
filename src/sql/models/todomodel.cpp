@@ -110,7 +110,17 @@ public:
 
         const bool updateStates = updateTodoPomodoros(todo);
         if (!updateStates) {
-            SqlHelper::rollback();
+            if (ok) {
+                SqlHelper::rollback();
+            }
+            return false;
+        }
+
+        const bool reestimations = updateReestimations(todo);
+        if (!reestimations) {
+            if (ok) {
+                SqlHelper::rollback();
+            }
             return false;
         }
 
@@ -257,6 +267,29 @@ private:
         query.bindValue(":number", 0); /* Unused */
         foreach (int state, todo.states) {
             query.bindValue(":state", state);
+            if (!query.exec()) {
+                REPORT_SQL_ERROR(query);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool updateReestimations(const Todo &todo) {
+        SQL_QUERY(query);
+        query.prepare("DELETE FROM todo_reestimation WHERE todo_id=:todoId");
+        query.bindValue(":todoId", todo.id);
+
+        if (!query.exec()) {
+            REPORT_SQL_ERROR(query);
+            return false;
+        }
+
+        query.prepare("INSERT INTO todo_reestimation(todo_id, reestimation) VALUES(:todoId, :reestimation)");
+        query.bindValue(":todoId", todo.id);
+        foreach (int reestimation, todo.reestimation) {
+            query.bindValue(":reestimation", reestimation);
             if (!query.exec()) {
                 REPORT_SQL_ERROR(query);
                 return false;
@@ -466,8 +499,13 @@ void TodoModel::reestimate(const QModelIndex &index, int reestimation)
 
     Todo &todo = mTodo[index.row()];
     todo.reestimation << reestimation;
-    const QModelIndex &pomdoroIndex = QAbstractTableModel::index(index.row(), Pomodoro);
-    emit dataChanged(pomdoroIndex, pomdoroIndex);
+    for (int i = 0; i < reestimation; ++i) {
+        todo.states.append(Todo::OnHold);
+    }
+    if (mManager->updateTodo(todo)) {
+        const QModelIndex &pomdoroIndex = QAbstractTableModel::index(index.row(), Pomodoro);
+        emit dataChanged(pomdoroIndex, pomdoroIndex);
+    }
 }
 
 void TodoModel::taskDone(const QModelIndex &index)

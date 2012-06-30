@@ -88,6 +88,12 @@ void TodoDialog::on_cmbEstimation_activated(int index)
 {
     Q_UNUSED(index);
     mTodo.estimation = ui->cmbEstimation->currentText().toInt();
+
+    mTodo.states.clear();
+    mTodo.states.reserve(mTodo.estimation);
+    for (int i = 0; i < mTodo.estimation; ++i) {
+        mTodo.states.append(Todo::OnHold);
+    }
 }
 
 void TodoDialog::on_chkUrgent_clicked(bool checked)

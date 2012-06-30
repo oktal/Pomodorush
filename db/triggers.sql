@@ -4,5 +4,6 @@ FOR EACH ROW
 BEGIN 
 
 DELETE FROM pomodoro_state WHERE todo_id=OLD.id;
+DELETE FROM todo_reestimation WHERE todo_id=OLD.id;
 
 END
