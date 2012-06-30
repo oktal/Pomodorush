@@ -8,7 +8,6 @@
 #include "sql/entities/todo.h"
 
 class TodoManager;
-class Todo;
 
 struct Estimation {
     int base;
@@ -38,7 +37,8 @@ public:
 
     QModelIndex todoIndex(qint64 id) const;
 
-    void pomodoroFinished(const QModelIndex &index);
+    void finishPomodoro(const QModelIndex &index);
+    void voidPomodoro(const QModelIndex &index);
     void addInterruption(const QModelIndex &index, const Todo::Interruption &interruption);
     bool canReestimate(const QModelIndex &index) const;
     void reestimate(const QModelIndex &index, int reestimation);
@@ -54,6 +54,7 @@ public slots:
 private:
     Estimation estimation(const QModelIndex &index) const;
     QString interruption(const QModelIndex &index) const;
+    void changePomodoroState(const QModelIndex &index, Todo::PomodoroState state);
 
     QDate mDate;
     QScopedPointer<TodoManager> mManager;

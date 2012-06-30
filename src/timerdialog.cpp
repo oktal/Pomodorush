@@ -12,6 +12,7 @@
 #include <Phonon/MediaObject>
 #include <Phonon/AudioOutput>
 #include <QFile>
+#include <QMessageBox>
 
 static const QLatin1String &tickingSound = QLatin1String("sounds/clock_ticking_cut.wav");
 
@@ -119,5 +120,24 @@ void TimerDialog::onSoundFinished()
 {
     if (mPeriod == Work) {
         mediaObject->enqueue(Phonon::MediaSource(tickingSound));
+    }
+}
+
+void TimerDialog::on_btnVoid_clicked()
+{
+    const int ret = QMessageBox::warning(this, tr("Warning"),
+                                         tr("Do you really want to void this pomodoro ?"),
+                                         QMessageBox::Yes, QMessageBox::No);
+    if (ret == QMessageBox::Yes) {
+        emit pomodoroCanceled(mTodo);
+        mTimer->stop();
+        ui->btnInterruption->setEnabled(false);
+        ui->btnVoid->setEnabled(false);
+        ui->btnNextPomodoro->setEnabled(true);
+        ui->lblPeriod->setText(tr("Time to work !"));
+        QSettings settings(qApp->organizationName(), qApp->applicationName());
+        const int pomodoroLength = settings.value(SETTING_POMODOROLENGTH).toInt();
+        ui->lblTime->setText(QTime(0, pomodoroLength, 0).toString("mm:ss"));
+        mediaObject->stop();
     }
 }

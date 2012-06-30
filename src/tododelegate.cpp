@@ -2,6 +2,7 @@
 #include "sql/models/todomodel.h"
 
 #include <QPainter>
+#include <QDebug>
 
 TodoDelegate::TodoDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
@@ -68,7 +69,7 @@ void TodoDelegate::drawPomodoros(QPainter *painter, const QStyleOptionViewItem &
 
     const QVariant &data = index.data();
     const Estimation &e = qvariant_cast<Estimation>(data);
-    const int pomodoroCount = index.data(Qt::EditRole).toInt();
+    const QList<QVariant> pomodoroStates = index.data(Qt::EditRole).toList();
 
     if (option.state & QStyle::State_Selected) {
         painter->fillRect(option.rect, option.palette.highlight());
@@ -84,8 +85,13 @@ void TodoDelegate::drawPomodoros(QPainter *painter, const QStyleOptionViewItem &
     const int xOffset = option.rect.x() + 5;
 
     for (int i = 0; i < e.base; ++i) {
-        if (i < pomodoroCount) {
+        Q_ASSERT(i < pomodoroStates.length());
+        const Todo::PomodoroState state = static_cast<Todo::PomodoroState>(pomodoroStates.at(i).toInt());
+        if (state == Todo::Finished) {
             painter->drawPixmap(xOffset, yOffset, QPixmap(":/square-green-icon"));
+        }
+        else if (state == Todo::Void) {
+            painter->drawPixmap(xOffset, yOffset, QPixmap(":/square-red-icon"));
         }
         else {
             painter->drawPixmap(xOffset, yOffset, QPixmap(":/square-blue-icon"));
@@ -97,8 +103,14 @@ void TodoDelegate::drawPomodoros(QPainter *painter, const QStyleOptionViewItem &
     if (reestimation.size() > 0) {
         const int r0 = reestimation[0];
         for (int i = 0; i < r0; ++i) {
-            if (i + e.base < pomodoroCount) {
+            Q_ASSERT(i + e.base < pomodoroStates.length());
+            const Todo::PomodoroState state = static_cast<Todo::PomodoroState>(
+                        pomodoroStates.at(i + e.base).toInt());
+            if (state == Todo::Finished) {
                 painter->drawPixmap(xOffset, yOffset, QPixmap(":/circle-green-icon"));
+            }
+            else if (state == Todo::Void) {
+                painter->drawPixmap(xOffset, yOffset, QPixmap(":/circle-red-icon"));
             }
             else {
                 painter->drawPixmap(xOffset, yOffset, QPixmap(":/circle-blue-icon"));
@@ -109,8 +121,14 @@ void TodoDelegate::drawPomodoros(QPainter *painter, const QStyleOptionViewItem &
         if (reestimation.size() > 1) {
             const int r1 = reestimation[1];
             for (int i = 0; i < r1; ++i) {
-                if (i + e.base + r0 < pomodoroCount) {
+                Q_ASSERT(i + e.base + r0 < pomodoroStates.length());
+                const Todo::PomodoroState state = static_cast<Todo::PomodoroState>(
+                            pomodoroStates.at(i + e.base + r0).toInt());
+                if (state == Todo::Finished) {
                     painter->drawPixmap(xOffset, yOffset, QPixmap(":/triangle-green-icon"));
+                }
+                else if (state == Todo::Void) {
+                    painter->drawPixmap(xOffset, yOffset, QPixmap(":/triangle-red-icon"));
                 }
                 else {
                     painter->drawPixmap(xOffset, yOffset, QPixmap(":/triangle-blue-icon"));

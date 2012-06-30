@@ -26,6 +26,7 @@ public:
 signals:
     void timerFinished(const Todo &todo);
     void interrupted(const Todo &todo, const Todo::Interruption &interuption);
+    void pomodoroCanceled(const Todo &todo);
 
 public slots:
     void startTimer();
@@ -38,6 +39,8 @@ private slots:
     void on_btnNextPomodoro_clicked();
 
     void onSoundFinished();
+
+    void on_btnVoid_clicked();
 
 private:
     Ui::TimerDialog *ui;

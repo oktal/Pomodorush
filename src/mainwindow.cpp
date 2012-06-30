@@ -188,9 +188,13 @@ void MainWindow::on_btnPlanActivity_clicked()
         todo.type = a.type;
         todo.description = a.description;
         todo.estimation = a.estimation;
-        todo.pomodoro_done = 0;
         todo.urgent = a.urgent;
         todo.done = false;
+        todo.pomodoro_done = 0;
+        todo.states.reserve(todo.estimation);
+        for (int i = 0; i < todo.estimation; ++i) {
+            todo.states.append(Todo::OnHold);
+        }
         mTodoModel->addTodo(todo);
     }
 
@@ -268,6 +272,7 @@ void MainWindow::on_btnStartPomodoro_clicked()
         connect(dialog, SIGNAL(timerFinished(Todo)), this, SLOT(onTimerFinished(Todo)));
         connect(dialog, SIGNAL(interrupted(Todo,Todo::Interruption)), this,
                 SLOT(onInterrupted(Todo,Todo::Interruption)));
+        connect(dialog, SIGNAL(pomodoroCanceled(Todo)), this, SLOT(onPomodoroCanceled(Todo)));
     }
 }
 
@@ -275,7 +280,7 @@ void MainWindow::onTimerFinished(const Todo &todo)
 {
     const QModelIndex &index = mTodoModel->todoIndex(todo.id);
     if (index.isValid()) {
-        mTodoModel->pomodoroFinished(index);
+        mTodoModel->finishPomodoro(index);
     }
 }
 
@@ -284,6 +289,15 @@ void MainWindow::onInterrupted(const Todo &todo, const Todo::Interruption &inter
     const QModelIndex &index = mTodoModel->todoIndex(todo.id);
     if (index.isValid()) {
         mTodoModel->addInterruption(index, interruption);
+    }
+}
+
+void MainWindow::onPomodoroCanceled(const Todo &todo)
+{
+
+    const QModelIndex &index = mTodoModel->todoIndex(todo.id);
+    if (index.isValid()) {
+        mTodoModel->voidPomodoro(index);
     }
 }
 

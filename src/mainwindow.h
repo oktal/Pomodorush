@@ -50,6 +50,7 @@ private slots:
 
     void onTimerFinished(const Todo &todo);
     void onInterrupted(const Todo &todo, const Todo::Interruption &interruption);
+    void onPomodoroCanceled(const Todo &todo);
 
     void on_btnReestimate_clicked();
 

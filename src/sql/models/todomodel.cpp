@@ -7,7 +7,11 @@
 #include <QApplication>
 #include <QColor>
 
+#include <numeric>
+
 static const int MaxReestimation = 2;
+
+enum Test { Zib, Zab };
 
 class TodoManager {
 public:
@@ -18,14 +22,14 @@ public:
         query.prepare("INSERT INTO todo(date, type, description, "
                       "estimation, done, pomodoro_done, urgent) "
                       "VALUES(:date, :type, :description, :estimation, "
-                      ":done, :pomodoro_done, :urgent)");
+                      ":pomodoro_done, :done, :urgent)");
         query.bindValue(":date", todo.date);
         query.bindValue(":type", todo.type);
         query.bindValue(":description", todo.description);
         query.bindValue(":estimation", todo.estimation);
         query.bindValue(":done", todo.done);
-        query.bindValue(":pomodoro_done", todo.pomodoro_done);
         query.bindValue(":urgent", todo.urgent);
+        query.bindValue(":pomodoro_done", todo.pomodoro_done);
 
         const bool ok = SqlHelper::transaction();
         if (!query.exec()) {
@@ -64,6 +68,8 @@ public:
                 todo.urgent = query.value(7).toBool();
                 todo.reestimation = selectReestimations(todo.id);
                 todo.interruptions = selectInterruptions(todo.id);
+
+                todo.states = selectStates(todo.id, todo.estimation, todo.reestimation);
                 todos << todo;
             }
         }
@@ -75,14 +81,14 @@ public:
         return todos;
     }
 
-    bool updateTodos(const Todo &todo) {
+    bool updateTodo(const Todo &todo) {
         SQL_QUERY(query);
         query.prepare("UPDATE TODO SET "
                       "date=:date, type=:type, "
                       "description=:description, "
                       "estimation=:estimation, "
                       "done=:done, "
-                      "pomodoro_done=:pomodoroDone, "
+                      "pomodoro_done=:pomodoro_done, "
                       "urgent=:urgent "
                       "WHERE id=:todoId");
         query.bindValue(":date", todo.date);
@@ -90,7 +96,7 @@ public:
         query.bindValue(":description", todo.description);
         query.bindValue(":estimation", todo.estimation);
         query.bindValue(":done", todo.done);
-        query.bindValue(":pomodoroDone", todo.pomodoro_done);
+        query.bindValue(":pomodoro_done", todo.pomodoro_done);
         query.bindValue(":urgent", todo.urgent);
         query.bindValue(":todoId", todo.id);
 
@@ -102,10 +108,15 @@ public:
             }
         }
 
+        const bool updateStates = updateTodoPomodoros(todo);
+        if (!updateStates) {
+            SqlHelper::rollback();
+            return false;
+        }
+
         if (ok) {
             SqlHelper::commit();
         }
-
         return true;
     }
 
@@ -200,6 +211,61 @@ private:
         return interruptions;
     }
 
+    QList<int> selectStates(int todoId, int estimation, const QList<int> &reestimation) {
+//        int totalPomodoro = todo.estimation;
+//        foreach (int reestimation, todo.reestimation) {
+//            totalPomodoro += reestimation;
+//        }
+        const int totalPomodoro = std::accumulate(reestimation.begin(), reestimation.end(), estimation,
+                                                  std::plus<int>());
+        QList<int> states;
+        states.reserve(totalPomodoro);
+        for (int i = 0; i < totalPomodoro; ++i) {
+            states.append(Todo::OnHold);
+        }
+
+        SQL_QUERY(query);
+        query.prepare("SELECT state, number FROM pomodoro_state WHERE todo_id=:todoId");
+        query.bindValue(":todoId", todoId);
+
+        if (query.exec()) {
+            int n = 0;
+            while (query.next()) {
+                Todo::PomodoroState state =
+                        static_cast<Todo::PomodoroState>(query.value(0).toInt());
+                states[n++] = state;
+            }
+        }
+        else {
+            REPORT_SQL_ERROR(query);
+        }
+        return states;
+    }
+
+    bool updateTodoPomodoros(const Todo &todo) {
+        SQL_QUERY(query);
+        query.prepare("DELETE FROM pomodoro_state WHERE todo_id=:todoId");
+        query.bindValue(":todoId", todo.id);
+
+        if (!query.exec()) {
+            REPORT_SQL_ERROR(query);
+            return false;
+        }
+
+        query.prepare("INSERT INTO pomodoro_state(todo_id, state, number) VALUES(:todoId, :state, :number)");
+        query.bindValue(":todoId", todo.id);
+        query.bindValue(":number", 0); /* Unused */
+        foreach (int state, todo.states) {
+            query.bindValue(":state", state);
+            if (!query.exec()) {
+                REPORT_SQL_ERROR(query);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 };
 
 TodoModel::TodoModel(const QDate &date, QObject *parent) :
@@ -282,7 +348,10 @@ QVariant TodoModel::data(const QModelIndex &index, int role) const
         return todo.urgent ? Qt::Checked : Qt::Unchecked;
     }
     else if (role == Qt::EditRole && index.column() == Pomodoro) {
-        return todo.pomodoro_done;
+        /* Cheat */
+        QVariantList states;
+        qCopy(todo.states.begin(), todo.states.end(), std::back_inserter(states));
+        return states;
     }
     else if (role == Qt::FontRole && (index.column() == Type ||
              index.column() == Description)) {
@@ -317,7 +386,7 @@ bool TodoModel::addTodo(Todo &todo)
 bool TodoModel::setTodo(const QModelIndex &index, const Todo &todo)
 {
     bool ok = false;
-    if (mManager->updateTodos(todo)) {
+    if (mManager->updateTodo(todo)) {
         const QModelIndex topLeft = this->index(index.row(), 0);
         const QModelIndex bottomRight = this->index(index.row(), Count - 1);
         emit dataChanged(topLeft, bottomRight);
@@ -349,16 +418,22 @@ QModelIndex TodoModel::todoIndex(qint64 id) const
     return QModelIndex();
 }
 
-void TodoModel::pomodoroFinished(const QModelIndex &index)
+void TodoModel::finishPomodoro(const QModelIndex &index)
 {
     if (index.row() < 0 || index.row() >= mTodo.count()) {
         Q_ASSERT_X(false, Q_FUNC_INFO, "Bad Index");
     }
 
-    Todo &todo = mTodo[index.row()];
-    todo.pomodoro_done++;
-    const QModelIndex &pomodoroIndex = QAbstractTableModel::index(index.row(), Pomodoro);
-    emit dataChanged(pomodoroIndex, pomodoroIndex);
+    changePomodoroState(index, Todo::Finished);
+}
+
+void TodoModel::voidPomodoro(const QModelIndex &index)
+{
+    if (index.row() < 0 || index.row() >= mTodo.count()) {
+            Q_ASSERT_X(false, Q_FUNC_INFO, "Bad Index");
+    }
+
+    changePomodoroState(index, Todo::Void);
 }
 
 void TodoModel::addInterruption(const QModelIndex &index, const Todo::Interruption &interruption)
@@ -491,4 +566,15 @@ QString TodoModel::interruption(const QModelIndex &index) const
     }
 
     return ret;
+}
+
+void TodoModel::changePomodoroState(const QModelIndex &index, Todo::PomodoroState state)
+{
+    Todo &todo = mTodo[index.row()];
+    todo.states[todo.pomodoro_done] = state;
+    ++todo.pomodoro_done;
+    if (mManager->updateTodo(todo)) {
+        const QModelIndex &pomodoroIndex = QAbstractTableModel::index(index.row(), Pomodoro);
+        emit dataChanged(pomodoroIndex, pomodoroIndex);
+    }
 }

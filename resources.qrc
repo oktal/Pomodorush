@@ -30,8 +30,12 @@
         <file alias="triangle-blue-icon">icons/triangle-blue-icon.png</file>
         <file alias="triangle-green-icon">icons/triangle-green-icon.png</file>
         <file>icons/next-icon.png</file>
+        <file alias="circle-red-icon">icons/circle-red-icon.png</file>
+        <file alias="square-red-icon">icons/square-red-icon.png</file>
+        <file alias="triangle-red-icon">icons/triangle-red-icon.png</file>
     </qresource>
     <qresource prefix="/sql">
         <file alias="script001.sql">db/pomodorush.sql</file>
+        <file alias="script002.sql">db/triggers.sql</file>
     </qresource>
 </RCC>

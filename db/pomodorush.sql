@@ -2,7 +2,7 @@
 -- Author:        octal
 -- Caption:       New Model
 -- Project:       Name of the project
--- Changed:       2012-05-24 14:50
+-- Changed:       2012-06-29 20:04
 -- Created:       2012-05-22 16:11
 PRAGMA foreign_keys = OFF;
 
@@ -23,8 +23,8 @@ CREATE TABLE "todo"(
   "description" INTEGER,
   "estimation" INTEGER,
   "done" INTEGER,
-  "pomodoro_done" INTEGER,
-  "urgent" INTEGER
+  "urgent" INTEGER,
+  "pomodoro_done" INTEGER
 );
 CREATE TABLE "todo_reestimation"(
   "todo_id" INTEGER NOT NULL,
@@ -50,4 +50,13 @@ CREATE TABLE "record"(
     REFERENCES "todo"("id")
 );
 CREATE INDEX "record.fk_record_todo1" ON "record"("todo_id");
+CREATE TABLE "pomodoro_state"(
+  "todo_id" INTEGER NOT NULL,
+  "number" INTEGER,
+  "state" INTEGER,
+  CONSTRAINT "fk_pomodoro_state_todo1"
+    FOREIGN KEY("todo_id")
+    REFERENCES "todo"("id")
+);
+CREATE INDEX "pomodoro_state.fk_pomodoro_state_todo1" ON "pomodoro_state"("todo_id");
 COMMIT;

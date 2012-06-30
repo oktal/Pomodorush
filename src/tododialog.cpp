@@ -26,7 +26,6 @@ TodoDialog::TodoDialog(QWidget *parent) :
     ui->cmbEstimation->setItemDelegate(new EstimationDelegate(0, this));
     mTodo.id = -1;
     mTodo.estimation = 1;
-    mTodo.pomodoro_done = 0;
     mTodo.done = false;
     mTodo.date = QDate::currentDate();
 
@@ -56,13 +55,13 @@ TodoDialog::TodoDialog(const Todo &todo, QWidget *parent) :
 
     ui->lblWarning->hide();
 
-    if (todo.pomodoro_done > 0) {
-        ui->lblWarnReestimate->show();
-        ui->cmbEstimation->setDisabled(true);
-    }
-    else {
-        ui->lblWarnReestimate->hide();
-    }
+//    if (todo.pomodoro_done > 0) {
+//        ui->lblWarnReestimate->show();
+//        ui->cmbEstimation->setDisabled(true);
+//    }
+//    else {
+//        ui->lblWarnReestimate->hide();
+//    }
 }
 
 TodoDialog::~TodoDialog()

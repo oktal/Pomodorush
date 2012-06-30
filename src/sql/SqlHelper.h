@@ -6,7 +6,7 @@
 #include <QSqlQuery>
 
 #define SQL_QUERY(var) QSqlQuery var = SqlHelper::query()
-#define REPORT_SQL_ERROR(query) qWarning() << Q_FUNC_INFO << qPrintable(query.lastError().text())
+#define REPORT_SQL_ERROR(query) qWarning() << "SQL Error " << Q_FUNC_INFO << qPrintable(query.lastError().text())
 
 namespace SqlHelper
 {
