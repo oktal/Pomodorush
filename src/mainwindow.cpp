@@ -221,10 +221,11 @@ void MainWindow::on_tblTodo_clicked(const QModelIndex &index)
 {
     const QModelIndex &mappedIndex = mTodoFilterModel->mapToSource(index);
     const bool done = mTodoModel->isDone(mappedIndex);
+    const bool canStartPomodo = mTodoModel->remainingPomodoro(mappedIndex) > 0;
     ui->btnEditTodo->setEnabled(index.isValid());
     ui->btnRemoveTodo->setEnabled(index.isValid());
     ui->btnTaskDone->setEnabled(!done);
-    ui->btnStartPomodoro->setEnabled(!done);
+    ui->btnStartPomodoro->setEnabled(!done && canStartPomodo);
     ui->btnReestimate->setEnabled(!done && mTodoModel->canReestimate(mappedIndex));
 }
 
@@ -291,6 +292,7 @@ void MainWindow::onTimerFinished(const Todo &todo)
         Q_ASSERT(remainingPomodoro >= 0);
         if (remainingPomodoro == 0) {
             mTimerDialog->disableTimer();
+            ui->btnStartPomodoro->setEnabled(false);
         }
     }
 }
@@ -307,6 +309,7 @@ void MainWindow::onPomodoroCanceled(const Todo &todo)
         Q_ASSERT(remainingPomodoro >= 0);
         if (remainingPomodoro == 0) {
             mTimerDialog->disableTimer();
+            ui->btnStartPomodoro->setEnabled(false);
         }
     }
 }
@@ -330,6 +333,7 @@ void MainWindow::on_btnReestimate_clicked()
             const QModelIndex &mappedIndex = mTodoFilterModel->mapToSource(index);
             mTodoModel->reestimate(mappedIndex, reestimation);
             ui->btnReestimate->setEnabled(mTodoModel->canReestimate(mappedIndex));
+            ui->btnStartPomodoro->setEnabled(true);
         }
     }
 }
