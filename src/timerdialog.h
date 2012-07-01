@@ -23,6 +23,8 @@ public:
     ~TimerDialog();
     Period period() const;
 
+    void disableTimer();
+
 signals:
     void timerFinished(const Todo &todo);
     void interrupted(const Todo &todo, const Todo::Interruption &interuption);

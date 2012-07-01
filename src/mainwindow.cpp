@@ -33,7 +33,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mActivitiesModel(new ActivitiesModel(this)),
     mActivitiesFilterModel(new ActivitiesFilterModel(this)),
     mTodoModel(new TodoModel(QDate::currentDate(), this)),
-    mTodoFilterModel(new TodoFilterModel(this))
+    mTodoFilterModel(new TodoFilterModel(this)),
+    mTimerDialog(0)
 {
     ui->setupUi(this);
 
@@ -266,21 +267,47 @@ void MainWindow::on_btnStartPomodoro_clicked()
     if (index.isValid()) {
         const QModelIndex &mappedIndex = mTodoFilterModel->mapToSource(index);
         const Todo &todo = mTodoModel->todo(mappedIndex);
-        TimerDialog *dialog = new TimerDialog(todo, this);
-        dialog->show();
-        dialog->startTimer();
-        connect(dialog, SIGNAL(timerFinished(Todo)), this, SLOT(onTimerFinished(Todo)));
-        connect(dialog, SIGNAL(interrupted(Todo,Todo::Interruption)), this,
+
+        delete mTimerDialog;
+        mTimerDialog = new TimerDialog(todo, this);
+        mTimerDialog->show();
+        mTimerDialog->startTimer();
+        connect(mTimerDialog, SIGNAL(timerFinished(Todo)), this, SLOT(onTimerFinished(Todo)));
+        connect(mTimerDialog, SIGNAL(interrupted(Todo,Todo::Interruption)), this,
                 SLOT(onInterrupted(Todo,Todo::Interruption)));
-        connect(dialog, SIGNAL(pomodoroCanceled(Todo)), this, SLOT(onPomodoroCanceled(Todo)));
+        connect(mTimerDialog, SIGNAL(pomodoroCanceled(Todo)), this, SLOT(onPomodoroCanceled(Todo)));
     }
 }
+
+/* TODO: refactor in one function */
 
 void MainWindow::onTimerFinished(const Todo &todo)
 {
     const QModelIndex &index = mTodoModel->todoIndex(todo.id);
     if (index.isValid()) {
         mTodoModel->finishPomodoro(index);
+        const int remainingPomodoro = mTodoModel->remainingPomodoro(index);
+        /* Postcon : remaining pomodoro must always be >= 0 */
+        Q_ASSERT(remainingPomodoro >= 0);
+        if (remainingPomodoro == 0) {
+            mTimerDialog->disableTimer();
+        }
+    }
+}
+
+void MainWindow::onPomodoroCanceled(const Todo &todo)
+{
+
+    const QModelIndex &index = mTodoModel->todoIndex(todo.id);
+    if (index.isValid()) {
+        mTodoModel->voidPomodoro(index);
+
+        const int remainingPomodoro = mTodoModel->remainingPomodoro(index);
+        /* Postcon : remaining pomodoro must always be >= 0 */
+        Q_ASSERT(remainingPomodoro >= 0);
+        if (remainingPomodoro == 0) {
+            mTimerDialog->disableTimer();
+        }
     }
 }
 
@@ -292,14 +319,6 @@ void MainWindow::onInterrupted(const Todo &todo, const Todo::Interruption &inter
     }
 }
 
-void MainWindow::onPomodoroCanceled(const Todo &todo)
-{
-
-    const QModelIndex &index = mTodoModel->todoIndex(todo.id);
-    if (index.isValid()) {
-        mTodoModel->voidPomodoro(index);
-    }
-}
 
 void MainWindow::on_btnReestimate_clicked()
 {

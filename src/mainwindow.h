@@ -15,6 +15,8 @@ class ActivitiesFilterModel;
 class TodoModel;
 class TodoFilterModel;
 
+class TimerDialog;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -84,6 +86,7 @@ private:
     ActivitiesFilterModel *mActivitiesFilterModel;
     TodoModel *mTodoModel;
     TodoFilterModel *mTodoFilterModel;
+    TimerDialog *mTimerDialog;
 };
 
 #endif // MAINWINDOW_H

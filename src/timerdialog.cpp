@@ -50,6 +50,18 @@ TimerDialog::Period TimerDialog::period() const
     return mPeriod;
 }
 
+void TimerDialog::disableTimer()
+{
+    mTimer->stop();
+    mediaObject->stop();
+
+    ui->btnInterruption->setEnabled(false);
+    ui->btnNextPomodoro->setEnabled(false);
+    ui->btnVoid->setEnabled(false);
+
+    ui->lblPeriod->setText(tr("You have consumed all your pomodoro"));
+}
+
 void TimerDialog::startTimer()
 {
     QSettings settings(qApp->organizationName(), qApp->applicationName());
@@ -129,7 +141,6 @@ void TimerDialog::on_btnVoid_clicked()
                                          tr("Do you really want to void this pomodoro ?"),
                                          QMessageBox::Yes, QMessageBox::No);
     if (ret == QMessageBox::Yes) {
-        emit pomodoroCanceled(mTodo);
         mTimer->stop();
         ui->btnInterruption->setEnabled(false);
         ui->btnVoid->setEnabled(false);
@@ -139,5 +150,6 @@ void TimerDialog::on_btnVoid_clicked()
         const int pomodoroLength = settings.value(SETTING_POMODOROLENGTH).toInt();
         ui->lblTime->setText(QTime(0, pomodoroLength, 0).toString("mm:ss"));
         mediaObject->stop();
+        emit pomodoroCanceled(mTodo);
     }
 }

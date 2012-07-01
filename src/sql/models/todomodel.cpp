@@ -11,8 +11,6 @@
 
 static const int MaxReestimation = 2;
 
-enum Test { Zib, Zab };
-
 class TodoManager {
 public:
     TodoManager() { }
@@ -529,6 +527,19 @@ bool TodoModel::isDone(const QModelIndex &index) const
     }
 
     return mTodo.at(index.row()).done;
+}
+
+int TodoModel::remainingPomodoro(const QModelIndex &index) const
+{
+    if (index.row() < 0 || index.row() >= mTodo.count()) {
+        Q_ASSERT_X(false, Q_FUNC_INFO, "Bad Index");
+    }
+
+    const Todo &todo = mTodo.at(index.row());
+    const int totalPomodoro = std::accumulate(todo.reestimation.begin(), todo.reestimation.end(), todo.estimation,
+                                              std::plus<int>());
+
+    return totalPomodoro - todo.pomodoro_done;
 }
 
 bool TodoModel::removeRows(int row, int count, const QModelIndex &parent)

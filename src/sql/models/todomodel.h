@@ -44,6 +44,7 @@ public:
     void reestimate(const QModelIndex &index, int reestimation);
     void taskDone(const QModelIndex &index);
     bool isDone(const QModelIndex &index) const;
+    int remainingPomodoro(const QModelIndex &index) const;
 
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
