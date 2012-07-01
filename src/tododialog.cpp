@@ -30,6 +30,7 @@ TodoDialog::TodoDialog(QWidget *parent) :
     mTodo.date = QDate::currentDate();
     mTodo.urgent = false;
     mTodo.pomodoro_done = 0;
+    mTodo.states.append(Todo::OnHold);
 
     for (int i = 1; i <= MaxPomodoro; ++i) {
         ui->cmbEstimation->addItem(QString::number(i));
