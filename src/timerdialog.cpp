@@ -80,7 +80,6 @@ void TimerDialog::onTimerTimeout()
     if (mTime.second() == 0 && mTime.minute() == 0) {
         mTimer->stop();
         if (mPeriod == Work) {
-            emit timerFinished(mTodo);
             ++mBreakCount;
             mediaObject->setCurrentSource(Phonon::MediaSource("sounds/alarm_clock.wav"));
             mediaObject->play();
@@ -100,6 +99,7 @@ void TimerDialog::onTimerTimeout()
             ui->btnVoid->setDisabled(true);
             ui->btnNextPomodoro->setDisabled(true);
             mPeriod = Rest;
+            emit timerFinished(mTodo);
         }
         else {
             ui->btnNextPomodoro->setEnabled(true);
