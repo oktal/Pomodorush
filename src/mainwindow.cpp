@@ -26,6 +26,7 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QSettings>
+#include <QInputDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -90,6 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tblTodo->setHorizontalHeader(todoHeader);
 
     ui->lblCurrentDate->setText(QDate::currentDate().toString(Qt::SystemLocaleLongDate));
+    ui->todoDateEdit->setDate(QDate::currentDate());
     readSettings();
 }
 
@@ -219,14 +221,19 @@ void MainWindow::on_btnAddTodo_clicked()
 
 void MainWindow::on_tblTodo_clicked(const QModelIndex &index)
 {
-    const QModelIndex &mappedIndex = mTodoFilterModel->mapToSource(index);
-    const bool done = mTodoModel->isDone(mappedIndex);
-    const bool canStartPomodo = mTodoModel->remainingPomodoro(mappedIndex) > 0;
-    ui->btnEditTodo->setEnabled(index.isValid());
-    ui->btnRemoveTodo->setEnabled(index.isValid());
-    ui->btnTaskDone->setEnabled(!done);
-    ui->btnStartPomodoro->setEnabled(!done && canStartPomodo);
-    ui->btnReestimate->setEnabled(!done && mTodoModel->canReestimate(mappedIndex));
+    if (mTodoModel->date() == QDate::currentDate()) {
+        const QModelIndex &mappedIndex = mTodoFilterModel->mapToSource(index);
+        const bool done = mTodoModel->isDone(mappedIndex);
+        const bool canStartPomodo = mTodoModel->remainingPomodoro(mappedIndex) > 0;
+        ui->btnEditTodo->setEnabled(index.isValid());
+        ui->btnRemoveTodo->setEnabled(index.isValid());
+        ui->btnTaskDone->setEnabled(!done);
+        ui->btnStartPomodoro->setEnabled(!done && canStartPomodo);
+        ui->btnReestimate->setEnabled(!done && mTodoModel->canReestimate(mappedIndex));
+    }
+    else {
+        ui->btnRemoveTodo->setEnabled(true);
+    }
 }
 
 void MainWindow::on_btnEditTodo_clicked()
@@ -396,4 +403,15 @@ void MainWindow::on_spinLongBreak_editingFinished()
 void MainWindow::on_spinPomodoroLongBreak_editingFinished()
 {
     ui->btnSaveSettings->setEnabled(true);
+}
+
+void MainWindow::on_todoDateEdit_dateChanged(const QDate &date)
+{
+    mTodoModel->setDate(date);
+    ui->lblCurrentDate->setText(date.toString(Qt::SystemLocaleLongDate));
+    ui->btnEditTodo->setEnabled(false);
+    ui->btnRemoveTodo->setEnabled(false);
+    ui->btnStartPomodoro->setEnabled(false);
+    ui->btnReestimate->setEnabled(false);
+    ui->btnTaskDone->setEnabled(false);
 }

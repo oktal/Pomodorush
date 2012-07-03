@@ -76,6 +76,8 @@ private slots:
 
     void on_spinPomodoroLongBreak_editingFinished();
 
+    void on_todoDateEdit_dateChanged(const QDate &date);
+
 private:
     void editActivity(const QModelIndex &index);
     void readSettings();

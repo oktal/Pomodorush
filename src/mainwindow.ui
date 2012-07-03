@@ -18,7 +18,7 @@
     <item row="0" column="1">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>3</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="homePage">
        <layout class="QVBoxLayout" name="verticalLayout_6" stretch="40,50,0,10">
@@ -341,19 +341,43 @@ p, li { white-space: pre-wrap; }
       <widget class="QWidget" name="todoPage">
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QLabel" name="label_2">
-          <property name="font">
-           <font>
-            <family>Trebuchet MS</family>
-            <pointsize>20</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>ToDo List</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="font">
+             <font>
+              <family>Trebuchet MS</family>
+              <pointsize>20</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>ToDo List</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_8">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>768</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QDateEdit" name="todoDateEdit">
+            <property name="calendarPopup">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <widget class="Line" name="line_2">

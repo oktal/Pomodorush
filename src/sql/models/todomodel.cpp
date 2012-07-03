@@ -314,7 +314,13 @@ TodoModel::~TodoModel()
 
 Qt::ItemFlags TodoModel::flags(const QModelIndex &index) const
 {
-    Qt::ItemFlags flags = QAbstractTableModel::flags(index);
+    Qt::ItemFlags flags;
+    if (mDate == QDate::currentDate()) {
+        flags = QAbstractTableModel::flags(index);
+    }
+    else {
+        flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    }
     if (index.column() == Urgent) {
         flags |= Qt::ItemIsUserCheckable;
     }
@@ -406,9 +412,11 @@ bool TodoModel::addTodo(Todo &todo)
 {
     bool ok = false;
     if (mManager->createTodo(todo)) {
-        beginInsertRows(QModelIndex(), mTodo.count(), mTodo.count());
-        mTodo << todo;
-        endInsertRows();
+        if (todo.date == mDate) {
+            beginInsertRows(QModelIndex(), mTodo.count(), mTodo.count());
+            mTodo << todo;
+            endInsertRows();
+        }
         ok = true;
     }
 
